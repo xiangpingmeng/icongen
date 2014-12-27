@@ -1,6 +1,11 @@
 var lwip = require('lwip');
 
+if(process.argv.length < 3){
 
+    console.log("Usage: icgen <filename>")
+    process.kill()
+
+}
 var filePath = process.argv[2];
 var destFolder = process.argv[3];
 
@@ -11,9 +16,9 @@ if(destFolder == null){
 
 var imageNames = [
 
-    [29,29,"Icon-Small.png"],
-    [58,58,"Icon-Small@2x.png"],
-    [87,87,"Icon-Small@3x.png"],
+    [29,29,"Icon-29.png"],
+    [58,58,"Icon-29@2x.png"],
+    [87,87,"Icon-29@3x.png"],
     [40,40,"Icon-40.png"],
     [80,80,"Icon-40@2x.png"],
     [120,120,"Icon-40@3x.png"],
@@ -30,29 +35,25 @@ var imageNames = [
 
 var processing = false;
 
+function resizeImage(width,height,sourcePath,destPath){
 
-    lwip.open(filePath, function(err, image){
+    lwip.open(sourcePath, function(err, image){
 
-        for(var i = 0;i < imageNames.length;i++){
-
-            var width = imageNames[i][0];
-            var height = imageNames[i][1];
-            var fileName = imageNames[i][2];
-            console.log(fileName)
-            var batch = image.batch()
-            batch.resize(width,height).writeFile(destFolder + fileName,function(err,image){})
-
-//            batch.resize(width,height,function(err,image){
-//
-//                batch.writeFile(fileName,function(err){
-//
-////                    test
-//
-//                });
-//
-//            });
-
-        }
+        image.batch().resize(width,height).writeFile(destPath,function(err,message){})
 
     });
+
+}
+
+
+for(var i = 0;i < imageNames.length;i++){
+
+    var width = imageNames[i][0];
+    var height = imageNames[i][1];
+    var fileName = imageNames[i][2];
+
+    resizeImage(width,height,filePath,destFolder + fileName);
+
+}
+
 
