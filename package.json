@@ -1,6 +1,6 @@
 {
-  "name": "iconGenerator",
-  "version": "0.0.1",
+  "name": "icongen",
+  "version": "0.0.5",
   "description": "A icon files generator for iOS app.",
   "main": "index.js",
   "scripts": {
@@ -8,11 +8,18 @@
   },
   "keywords": [
     "iOS",
-    "icon"
+    "icon",
+    "iTunesArtwork",
+    "app",
+    "Xcode"
   ],
   "author": "xiangping meng",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.6.0",
     "lwip": "0.0.6"
+  },
+  "bin": {
+    "icongen": "index.js"
   }
 }

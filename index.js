@@ -1,24 +1,40 @@
+#!/usr/bin/env node
+
+
 var lwip = require('lwip');
+var program = require('commander');
+var fs = require("fs");
 
-if(process.argv.length < 3){
+var pjson = require('./package.json');
 
-    console.log("Usage: icgen <filename>")
-    process.kill()
 
+program
+    .version(pjson.version)
+    .usage("icongen [options] <file>\n\n         icongen is an easy tool for app developer to generate icons.")
+    .option("-d, --dest","specify the destination folder of the generated icons.").parse(process.argv);
+
+var filePath = program.args[0] || null;
+if(filePath == null){
+
+    program.help();
 }
-var filePath = process.argv[2];
-var destFolder = process.argv[3];
+var destFolder = program.dest || "icons";
+fs.exists(destFolder,function(exists){
 
-if(destFolder == null){
-    destFolder = "icons/";
-}
+    if(exists == false){
+        
+        fs.mkdir(destFolder,null);
+    }
+
+});
+
 // obtain an image object:
 
 var imageNames = [
 
-    [29,29,"Icon-29.png"],
-    [58,58,"Icon-29@2x.png"],
-    [87,87,"Icon-29@3x.png"],
+    [29,29,"Icon-Small.png"],
+    [58,58,"Icon-Small@2x.png"],
+    [87,87,"Icon-Small@3x.png"],
     [40,40,"Icon-40.png"],
     [80,80,"Icon-40@2x.png"],
     [120,120,"Icon-40@3x.png"],
@@ -30,30 +46,46 @@ var imageNames = [
     [144,144,"Icon-72@2x.png"],
     [50,50,"Icon-50.png"],
     [100,100,"Icon-50@2x.png"]
-    
+
 ]
 
 var processing = false;
+var iconProcessed = 0;
 
-function resizeImage(width,height,sourcePath,destPath){
+function processImage(buffer,width,height,dest){
+    
+    lwip.open(buffer, 'png', function(err, image){
 
-    lwip.open(sourcePath, function(err, image){
+        image.resize(width,height,function(err,image){
 
-        image.batch().resize(width,height).writeFile(destPath,function(err,message){})
+          image.writeFile(dest,function(err){
+
+              if(!err){
+                  iconProcessed++;
+                  if(iconProcessed >= imageNames.length){
+                      console.log(iconProcessed + " icons generated at " + __dirname + "/" + destFolder + "/");
+                  }
+              }
+
+          });
+
+        });
 
     });
 
 }
 
+fs.readFile(filePath, function(err, buffer){
 
-for(var i = 0;i < imageNames.length;i++){
+    for(var i = 0;i < imageNames.length;i++){
 
-    var width = imageNames[i][0];
-    var height = imageNames[i][1];
-    var fileName = imageNames[i][2];
+        var width = imageNames[i][0];
+        var height = imageNames[i][1];
+        var fileName = imageNames[i][2];
 
-    resizeImage(width,height,filePath,destFolder + fileName);
+        processImage(buffer,width,height,destFolder + "/" + fileName);
 
-}
-
+    }
+    
+});
 
